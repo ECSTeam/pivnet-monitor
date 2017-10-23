@@ -4,19 +4,19 @@ resource_types:
   source:
     repository: pivotalcf/pivnet-resource
     tag: latest-final
-- name: pcf-pipelines
+resources:
+- name: pivnet-product
   type: pivnet
   source:
     api_token: {{pivnet_token}}
-    product_slug: pcf-automation
-    product_version: {{pcf-pipelines_version}}
+    product_slug: {{pivnet_product_slug}}
     sort_by: semver
 - name: pivnet-monitor
   type: git
   source:
     uri: git@github.com:ecsteam/pivnet-monitor.git
     branch: master
-    private_key: {{private_key}}
+    private_key: {{git_private_key}}
 - name: schedule
   type: time
   source:
@@ -27,9 +27,10 @@ resource_types:
 jobs:
 - name: regulator
   plan:
-    - get: scuedule
+    - get: schedule
       trigger: true
-    - get: pcf-pipelines
+    - get: pivnet-monitor
+    - get: pivnet-product
       params: { globs: [] }
 - name: start-pipeline
   plan:
@@ -40,7 +41,7 @@ jobs:
       params:
         globs: ["*.ova"]
   - task: start-pipeline-job
-    file: pcf-automation/tasks/start-pipeline-job/task.yml
+    file: pivnet-monitor/tasks/start-pipeline-job/task.yml
     params:
       CONCOURSE_URL: {{concourse_url}}
       CONCOURSE_USER: {{concourse_user}}
