@@ -36,10 +36,10 @@ jobs:
   plan:
   - aggregate:
     - get: pivnet-monitor
+    - get: pivnet-product
+      params: { globs: [] }
       trigger: true
       passed: [regulator]
-      params:
-        globs: ["*.ova"]
   - task: start-pipeline-job
     file: pivnet-monitor/tasks/start-pipeline-job/task.yml
     params:
