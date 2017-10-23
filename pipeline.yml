@@ -1,0 +1,49 @@
+resource_types:
+- name: pivnet
+  type: docker-image
+  source:
+    repository: pivotalcf/pivnet-resource
+    tag: latest-final
+- name: pcf-pipelines
+  type: pivnet
+  source:
+    api_token: {{pivnet_token}}
+    product_slug: pcf-automation
+    product_version: {{pcf-pipelines_version}}
+    sort_by: semver
+- name: pivnet-monitor
+  type: git
+  source:
+    uri: git@github.com:ecsteam/pivnet-monitor.git
+    branch: master
+    private_key: {{private_key}}
+- name: schedule
+  type: time
+  source:
+    interval: 30m
+    start: "12:00 AM"
+    stop: "11:59 PM"
+    location: America/Denver
+jobs:
+- name: regulator
+  plan:
+    - get: scuedule
+      trigger: true
+    - get: pcf-pipelines
+      params: { globs: [] }
+- name: start-pipeline
+  plan:
+  - aggregate:
+    - get: pivnet-monitor
+      trigger: true
+      passed: [regulator]
+      params:
+        globs: ["*.ova"]
+  - task: start-pipeline-job
+    file: pcf-automation/tasks/start-pipeline-job/task.yml
+    params:
+      CONCOURSE_URL: {{concourse_url}}
+      CONCOURSE_USER: {{concourse_user}}
+      CONCOURSE_PWD: {{concourse_pwd}}
+      PIPELINE_NAME: {{pipeline_name}}
+      JOB_NAME: {{job_name}}
