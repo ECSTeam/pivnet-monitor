@@ -29,9 +29,9 @@ jobs:
   plan:
     - get: schedule
       trigger: true
-    - get: pivnet-monitor
     - get: pivnet-product
       params: { globs: [] }
+      trigger: true
 - name: start-pipeline
   plan:
   - aggregate:
