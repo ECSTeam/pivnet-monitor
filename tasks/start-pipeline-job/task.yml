@@ -3,7 +3,7 @@ platform: linux
 
 image_resource:
   type: docker-image
-  source: {repository: ubuntu, tag: "trusty"}
+  source: {repository: czero/cflinuxfs2}
 
 inputs:
   - name: pivnet-monitor
